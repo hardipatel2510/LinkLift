@@ -1,0 +1,20 @@
+# Compiled class files and build directories
+*.class
+bin/
+
+# Application storage directories
+shared_files/
+downloads/
+
+# Test files created locally
+test.txt
+my\ test\ file\ with\ spaces.txt
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
