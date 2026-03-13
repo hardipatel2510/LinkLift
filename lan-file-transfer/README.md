@@ -1,21 +1,22 @@
 # Java LAN File Transfer System
 
-A professional-grade Java application that allows users to upload, list, and download files across a Local Area Network. This system uses `java.net` without any external dependencies, featuring automatic robust server discovery using UDP broadcasting and reliable file transfers using TCP sockets.
+A professional-grade, multi-threaded Java application that establishes a seamless File Transfer Protocol across a Local Area Network. This system is built entirely from scratch using the `java.net` standard library, eliminating the need for external frameworks or dependencies while fulfilling enterprise hardware transfer goals.
 
-## Architecture Explanation
+## Core Capabilities and Achievements
 
-The project follows a modular client-server architecture with a strict separation of concerns, fulfilling SOLID principles:
+This project successfully proves the robust implementation of raw transmission protocols to facilitate multi-node decentralized device transfers. 
 
-- **Server Application (`server.FileServer`)**:
-  - Sets up a `java.util.concurrent.ExecutorService` fixed thread pool to handle multiple concurrent client TCP connections seamlessly.
-  - Spawns a background thread running `UDPBroadcastService`, which periodically broadcasts `DatagramPacket` packets to the LAN subnet declaring its presence (`LAN_FILE_SERVER:<TCP_PORT>`).
-  - Upon a client TCP connection, delegates the socket to a `ClientHandler` runnable.
-  - Uses a singleton-like `FileManager` to ensure thread-safe concurrent reading and writing to the local `shared_files` directory.
+### 1. Zero-Configuration Subnet Discovery (UDP)
+To eliminate the friction of manually tracking IP addresses across dynamic LANs, the system leverages a `DatagramSocket`. The host server autonomously broadcasts its presence every 2 seconds to the entire Wi-Fi subnet (Port `8888`), allowing any client node running the software to passively listen, extract the packet payload, and instantly identify the correct server IP and TCP port for subsequent connections.
 
-- **Client Application (`client.FileClient`)**:
-  - Initialized by running `ServerDiscoveryService`, which temporarily listens on the designated UDP broadcast port to automatically detect the `FileServer`'s IP address and TCP Port. No manual IP configuration is required.
-  - Discovers the server and initializes an interactive command-line interface.
-  - Delegates to `DownloadManager`, which orchestrates chunk-based bidirectional file transfers over TCP using `BufferedInputStream` and `BufferedOutputStream`. This guarantees bounded memory usage during the transmission of very large files.
+### 2. Reliable Concurrent Communications (TCP)
+Once discovered, devices establish stateful TCP connections over `ServerSocket`. Handling multiple concurrent connections from different machines is achieved through a centralized thread pool managed perfectly by Java's `ExecutorService`, avoiding thread-spawning overhead. The server safely synchronizes reads and writes using a shared `FileManager` instance ensuring zero data corruption. 
+
+### 3. Memory-Safe Chunk Transmission
+Both the client and the server have been meticulously designed to handle the uploading and downloading of massive files without blowing up the JVM Heap size memory constraints. The system achieves this by iterating over native File Input/Output Streams using strict `8KB` (`8192 byte`) memory buffers, wrapping the connections in `BufferedInputStream` and `BufferedOutputStream`s.
+
+### 4. Cross-Platform Native Web Interface
+While the project includes a fully featured Java command-line interface for terminal users, it also dynamically spins up an embedded HTTP Web Server built on `com.sun.net.httpserver.HttpServer`. The server serves a beautiful native HTML frontend on port `8080`, allowing an end-user on an iPhone, Android, or desktop to hit the File Server IP Address in their browser and immediately download shared files or drag-and-drop upload files via AJAX `application/octet-stream` directly into the Java Server filesystem.
 
 ## Networking Diagram
 
@@ -36,40 +37,10 @@ sequenceDiagram
     Note over Client: Extracts Server IP & TCP Port
 
     Note over Client: File Transfer Phase
-    Client->>Server: TCP command (e.g. UPLOAD filename size)
+    Client->>Server: TCP command (e.g. UPLOAD filename)
     Server-->>Client: TCP "OK"
     Client->>Server: TCP Data Chunks
     Server-->>Client: (Implicit ACK via TCP sequence)
     Client->>Server: TCP "LIST" / "DOWNLOAD filename"
     Server-->>Client: TCP File Meta & Data Chunks
 ```
-
-## Step-by-Step Execution Instructions
-
-1. **Build the Project**
-   Compile the `.java` files using the included build script:
-   ```bash
-   ./build.sh
-   ```
-   *This compiles all classes into the `bin/` directory.*
-
-2. **Start the Server**
-   Run the server in one terminal window. It will listen for incoming connections and start broadcasting its presence on the LAN:
-   ```bash
-   ./run-server.sh
-   ```
-   *The shared directory `shared_files/` will automatically be created in the directory where the server is executed.*
-
-3. **Start the Client**
-   Run the client in a separate terminal window (or on another computer connected to the same Wi-Fi/LAN subnet):
-   ```bash
-   ./run-client.sh
-   ```
-   *The client will automatically intercept the server's UDP broadcast, locate the server IP, and connect to its active TCP port.*
-
-4. **Using the CLI**
-   Once connected, use the interactive terminal commands:
-   - `ls` - Lists files on the remote server
-   - `upload <filepath>` - Uploads your local file (e.g., `upload test.txt`)
-   - `download <filename>` - Downloads the file from the server into your `downloads/` directory
-   - `exit` - Gracefully close the client application
