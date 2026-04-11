@@ -8,18 +8,15 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import utils.LoggerConfig;
 
-/**
- * Main entry point for the LAN File Server.
- * Sets up the threadpool, starts the UDP broadcast service, and listens for TCP client connections.
- */
+// boot up the server, threadpool, and listeners
 public class FileServer {
     private static final Logger logger = LoggerConfig.getLogger(FileServer.class);
     
-    // Choose a standard port for the server
+    // main tcp port
     private static final int TCP_PORT = 9000;
-    // Standard port for the web interface
+    // web ui port
     private static final int WEB_PORT = 8080;
-    // Maximum concurrent client connections
+    // max concurrent clients
     private static final int THREAD_POOL_SIZE = 10;
     
     private final FileManager fileManager;
@@ -28,17 +25,17 @@ public class FileServer {
     private WebServer webServer;
 
     public FileServer() {
-        // Shared directory is created in the current working directory under "shared_files"
+        // drop everything in shared_files locally
         this.fileManager = new FileManager("shared_files");
         this.executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 
     public void start() {
-        // Start the UDP Broadcast service in a separate thread
+        // spin up the udp broadcaster
         udpBroadcastService = new UDPBroadcastService(TCP_PORT);
         executorService.submit(udpBroadcastService);
         
-        // Start the Web Server
+        // start the web ui
         webServer = new WebServer(WEB_PORT, fileManager, executorService);
         webServer.start();
         
@@ -47,10 +44,30 @@ public class FileServer {
 
         try {
             String localIp = utils.NetworkUtils.getLocalIPAddress().getHostAddress();
+            String webUrl = "http://" + localIp + ":" + WEB_PORT;
             System.out.println("\n=====================================================");
             System.out.println("  LAN File Server is Online!");
-            System.out.println("  To download files on mobile or desktop, open:");
-            System.out.println("  http://" + localIp + ":" + WEB_PORT);
+            System.out.println("  To download files on mobile or desktop, open:\n");
+            System.out.println("  => " + webUrl + " <=\n");
+            
+            try {
+                // generate qr code for easy mobile access
+                utils.qrcodegen.QrCode qr = utils.qrcodegen.QrCode.encodeText(webUrl, utils.qrcodegen.QrCode.Ecc.LOW);
+                int border = 2; // quiet zone
+                for (int y = -border; y < qr.size + border; y++) {
+                    System.out.print("    "); // indent
+                    for (int x = -border; x < qr.size + border; x++) {
+                        boolean isDark = qr.getModule(x, y);
+                        // using ANSI background colors: 40=black, 47=white
+                        // this avoids the '?' encoding issue on Windows completely
+                        System.out.print(isDark ? "\033[40m  \033[0m" : "\033[47m  \033[0m");
+                    }
+                    System.out.println();
+                }
+                System.out.println();
+            } catch (Exception ex) {
+                logger.warning("Could not generate QR Code: " + ex.getMessage());
+            }
         } catch (java.net.SocketException e) {
             logger.warning("Could not resolve local IP address for display.");
         }
@@ -77,10 +94,10 @@ public class FileServer {
             consoleThread.start();
 
             while (true) {
-                // Wait for a client connection
+                // block until someone connects
                 Socket clientSocket = serverSocket.accept();
                 
-                // Submit connection handling to the thread pool
+                // hand off to the threadpool
                 ClientHandler handler = new ClientHandler(clientSocket, fileManager);
                 executorService.submit(handler);
             }

@@ -14,10 +14,7 @@ import java.util.logging.Logger;
 
 import utils.LoggerConfig;
 
-/**
- * Provides a lightweight HTTP web interface for the LAN File Transfer System.
- * Serves an HTML page listing files, and exposes endpoints for downloading them from a browser.
- */
+// simple http server to feed the web ui
 public class WebServer {
     private static final Logger logger = LoggerConfig.getLogger(WebServer.class);
     
@@ -36,16 +33,16 @@ public class WebServer {
         try {
             server = HttpServer.create(new InetSocketAddress(port), 0);
             
-            // Context for the HTML dashboard
+            // root page Route
             server.createContext("/", new DashboardHandler(fileManager));
             
-            // Context for downloading files
+            // download route
             server.createContext("/download", new DownloadHandler(fileManager));
             
-            // Context for uploading files via browser
+            // upload route
             server.createContext("/upload", new UploadHandler(fileManager));
             
-            // Tie the HTTP server handler to our existing thread pool 
+            // hook into the main thread pool
             server.setExecutor(executorService); 
             server.start();
             
@@ -62,9 +59,7 @@ public class WebServer {
         }
     }
 
-    /**
-     * Handles requests to the root page. Returns beautifully styled HTML listing files.
-     */
+    // spits out the main html page
     static class DashboardHandler implements HttpHandler {
         private final FileManager fileManager;
 
@@ -172,9 +167,7 @@ public class WebServer {
         }
     }
 
-    /**
-     * Handles browser file downloads seamlessly
-     */
+    // deals with downloading files via the browser
     static class DownloadHandler implements HttpHandler {
         private final FileManager fileManager;
 
@@ -195,7 +188,7 @@ public class WebServer {
                 return;
             }
 
-            // Extract filename and safely decode it
+            // grab the filename safely
             String encodedFileName = query.substring(5); // skip "file="
             String fileName = java.net.URLDecoder.decode(encodedFileName, "UTF-8");
 
@@ -206,14 +199,14 @@ public class WebServer {
                 return;
             }
 
-            // Set headers to trigger a browser download action
+            // force the browser to download instead of opening it
             exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
             exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"" + fileName.replace("\"", "\\\"") + "\"");
             exchange.sendResponseHeaders(200, fileSize);
 
             logger.info("Web Browser requested download: " + fileName);
 
-            // Stream the file in 8KB chunks to avoid massive memory usage
+            // send it in chunks so we dont blow up the heap
             try (InputStream is = fileManager.getFileInputStream(fileName);
                  OutputStream os = exchange.getResponseBody()) {
                 
@@ -228,9 +221,7 @@ public class WebServer {
         }
     }
 
-    /**
-     * Handles file uploads directly from the web browser via AJAX raw stream
-     */
+    // handles uploading directly via ajax
     static class UploadHandler implements HttpHandler {
         private final FileManager fileManager;
 
@@ -251,7 +242,7 @@ public class WebServer {
                 return;
             }
 
-            // Extract filename from URL param
+            // yank the filename from params
             String fileName = java.net.URLDecoder.decode(query.substring(5), "UTF-8");
             logger.info("Web Browser uploading file: " + fileName);
 
@@ -269,7 +260,7 @@ public class WebServer {
                 return;
             }
 
-            // Successfully received. Respond with no body
+            // success, say OK
             exchange.sendResponseHeaders(200, -1);
             exchange.close();
             logger.info("Web Browser upload complete: " + fileName);

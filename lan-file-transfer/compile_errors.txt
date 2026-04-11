@@ -1,0 +1,80 @@
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:45: error: duplicate class: QrSegment
+public final class QrSegment {
+             ^
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrCode.java:91: error: cannot access QrSegment
+	public static QrCode encodeSegments(List<QrSegment> segs, Ecc ecl) {
+	                                         ^
+  bad source file: .\utils\qrcodegen\QrSegment.java
+    file does not contain class utils.qrcodegen.QrSegment
+    Please remove or make sure it appears in the correct subdirectory of the sourcepath.
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:203: error: cannot find symbol
+	final BitBuffer data;
+	      ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:218: error: cannot find symbol
+	public QrSegment(Mode md, int numCh, BitBuffer data) {
+	                                     ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:234: error: cannot find symbol
+	public BitBuffer getData() {
+	       ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrCode.java:137: error: cannot find symbol
+				throw new DataTooLongException(msg);
+				          ^
+  symbol:   class DataTooLongException
+  location: class QrCode
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:60: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:60: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		                   ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:79: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:79: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		                   ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:103: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:103: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		                   ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:147: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:147: error: cannot find symbol
+		BitBuffer bb = new BitBuffer();
+		                   ^
+  symbol:   class BitBuffer
+  location: class QrSegment
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:310: error: cannot find symbol
+			assert QrCode.MIN_VERSION <= ver && ver <= QrCode.MAX_VERSION;
+			       ^
+  symbol:   variable QrCode
+  location: class Mode
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java:310: error: cannot find symbol
+			assert QrCode.MIN_VERSION <= ver && ver <= QrCode.MAX_VERSION;
+			                                           ^
+  symbol:   variable QrCode
+  location: class Mode
+16 errors

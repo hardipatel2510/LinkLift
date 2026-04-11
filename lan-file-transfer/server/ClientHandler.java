@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import utils.LoggerConfig;
 
-/**
- * Handles individual client TCP connections. Processes LIST, UPLOAD, and DOWNLOAD commands.
- */
+// deal with each connected client and their commands
 public class ClientHandler implements Runnable {
     private static final Logger logger = LoggerConfig.getLogger(ClientHandler.class);
     private static final int BUFFER_SIZE = 8192; // 8KB buffer for file transfer
@@ -67,9 +65,9 @@ public class ClientHandler implements Runnable {
 
     private void handleList(DataOutputStream dos) throws IOException {
         List<String> files = fileManager.listFiles();
-        dos.writeInt(files.size()); // Send the count first
+        dos.writeInt(files.size()); // tell em how many are coming
         for (String fileStr : files) {
-            dos.writeUTF(fileStr); // Send each file name
+            dos.writeUTF(fileStr); // send name
         }
         dos.flush();
         logger.info("Sent file list to client (" + files.size() + " files).");
@@ -82,20 +80,20 @@ public class ClientHandler implements Runnable {
         dos.writeUTF("OK");
         dos.flush();
 
-        // Write the chunks from network to file
+        // dump chunks to disk
         try (OutputStream fos = fileManager.getFileOutputStream(filename)) {
             byte[] buffer = new byte[BUFFER_SIZE];
             long bytesReadTotal = 0;
             while (bytesReadTotal < fileSize) {
                 int read = dis.read(buffer, 0, (int) Math.min(buffer.length, fileSize - bytesReadTotal));
-                if (read == -1) break; // Premature EOF
+                if (read == -1) break; // connection dropped early
                 fos.write(buffer, 0, read);
                 bytesReadTotal += read;
             }
             logger.info("Successfully received file: " + filename + " (" + bytesReadTotal + " bytes)");
         } catch (IOException e) {
             logger.severe("Failed to save uploaded file: " + e.getMessage());
-            throw e; // rethrow logic can be adjusted based on needs
+            throw e; // someone else's problem now
         }
     }
 
@@ -113,7 +111,7 @@ public class ClientHandler implements Runnable {
         dos.writeLong(fileSize);
         dos.flush();
 
-        // Send file chunks over network
+        // blast the file over the wire
         try (InputStream fis = fileManager.getFileInputStream(filename)) {
             byte[] buffer = new byte[BUFFER_SIZE];
             int read;

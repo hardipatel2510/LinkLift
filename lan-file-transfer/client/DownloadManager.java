@@ -17,16 +17,12 @@ import java.util.List;
 import java.util.logging.Logger;
 import utils.LoggerConfig;
 
-/**
- * Handles TCP connections to the server to list, upload, and download files.
- */
+// handles the actual tcp file transfers
 public class DownloadManager {
     private static final Logger logger = LoggerConfig.getLogger(DownloadManager.class);
     private static final int BUFFER_SIZE = 8192; // 8KB chunks
 
-    /**
-     * Lists files from the server's shared directory.
-     */
+    // grab the file list from the server
     public List<String> listFiles(ServerInfo serverInfo) {
         List<String> files = new ArrayList<>();
         try (Socket socket = new Socket(serverInfo.ipAddress, serverInfo.tcpPort);
@@ -46,9 +42,7 @@ public class DownloadManager {
         return files;
     }
 
-    /**
-     * Uploads a local file to the server using chunk-based transfer.
-     */
+    // push a local file up to the server in chunks
     public void uploadFile(ServerInfo serverInfo, String filePath) {
         File file = new File(filePath);
         if (!file.exists() || !file.isFile()) {
@@ -61,21 +55,21 @@ public class DownloadManager {
              DataInputStream dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
              InputStream fis = new FileInputStream(file)) {
              
-            // Send UPLOAD command and metadata separately
+            // send command and metadata separated
             logger.info("Requesting upload: UPLOAD " + file.getName() + " (" + file.length() + " bytes)");
             dos.writeUTF("UPLOAD");
             dos.writeUTF(file.getName());
             dos.writeLong(file.length());
             dos.flush();
 
-            // Check server response
+            // wait for the ok
             String response = dis.readUTF();
             if (!"OK".equals(response)) {
                 logger.warning("Server rejected upload: " + response);
                 return;
             }
 
-            // Transfer data
+            // start pushing bytes
             byte[] buffer = new byte[BUFFER_SIZE];
             int read;
             long bytesSent = 0;
@@ -96,15 +90,13 @@ public class DownloadManager {
         }
     }
 
-    /**
-     * Downloads a file from the server into a specified directory.
-     */
+    // pull a file down and save it locally
     public void downloadFile(ServerInfo serverInfo, String filename, String saveDir) {
         try (Socket socket = new Socket(serverInfo.ipAddress, serverInfo.tcpPort);
              DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
              DataInputStream dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()))) {
 
-            // Send DOWNLOAD command and filename separately
+            // ask for the file
             dos.writeUTF("DOWNLOAD");
             dos.writeUTF(filename);
             dos.flush();
@@ -144,9 +136,7 @@ public class DownloadManager {
         }
     }
 
-    /**
-     * Prints a simple real-time progress bar to standard output.
-     */
+    // dump a simple progress bar to the console
     private void printProgress(long current, long total) {
         if (total == 0) return;
         int percent = (int) ((current * 100) / total);

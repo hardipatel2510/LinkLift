@@ -8,12 +8,10 @@ import java.util.logging.Logger;
 import utils.LoggerConfig;
 import utils.NetworkUtils;
 
-/**
- * Periodically broadcasts a UDP packet on the LAN so that clients can auto-discover the file server.
- */
+// yell into the void so clients can find us
 public class UDPBroadcastService implements Runnable {
     private static final Logger logger = LoggerConfig.getLogger(UDPBroadcastService.class);
-    // Standard port for the client to listen on
+    // where clients are listening
     public static final int DISCOVERY_PORT = 8888;
     private static final long BROADCAST_INTERVAL_MS = 2000;
 
@@ -48,7 +46,7 @@ public class UDPBroadcastService implements Runnable {
             while (running) {
                 try {
                     socket.send(packet);
-                    // Using fine log level to avoid spamming the console
+                    // keep logs quiet so we don't spam
                     logger.fine("Broadcasted server presence: " + message);
                     Thread.sleep(BROADCAST_INTERVAL_MS);
                 } catch (InterruptedException e) {

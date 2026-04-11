@@ -6,10 +6,7 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 import utils.LoggerConfig;
 
-/**
- * Main entry point for the LAN File Client.
- * Automatically discovers the server and provides an interactive CLI for testing.
- */
+// start the client and hook up the cli
 public class FileClient {
     private static final Logger logger = LoggerConfig.getLogger(FileClient.class);
     private static final String DOWNLOAD_DIR = "downloads";
@@ -80,9 +77,9 @@ public class FileClient {
                             filePath = filePath.substring(1, filePath.length() - 1);
                         }
                         
-                        // Terminal drag and drop often appends an extra space at the very end
+                        // clean up stray spaces from drag and drop
                         filePath = filePath.trim();
-                        // And escapes spaces with backslashes
+                        // fix dumb backslash escapes
                         filePath = filePath.replace("\\ ", " ");
                         
                         downloadManager.uploadFile(serverInfo, filePath);
