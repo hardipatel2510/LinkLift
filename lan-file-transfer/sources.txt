@@ -1,0 +1,14 @@
+F:\LinkLift\lan-file-transfer\client\DownloadManager.java
+F:\LinkLift\lan-file-transfer\client\FileClient.java
+F:\LinkLift\lan-file-transfer\client\ServerDiscoveryService.java
+F:\LinkLift\lan-file-transfer\server\ClientHandler.java
+F:\LinkLift\lan-file-transfer\server\FileManager.java
+F:\LinkLift\lan-file-transfer\server\FileServer.java
+F:\LinkLift\lan-file-transfer\server\UDPBroadcastService.java
+F:\LinkLift\lan-file-transfer\server\WebServer.java
+F:\LinkLift\lan-file-transfer\utils\LoggerConfig.java
+F:\LinkLift\lan-file-transfer\utils\NetworkUtils.java
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrCode.java
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\QrSegment.java
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\BitBuffer.java
+F:\LinkLift\lan-file-transfer\utils\qrcodegen\DataTooLongException.java

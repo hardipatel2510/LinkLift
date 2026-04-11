@@ -8,15 +8,11 @@ import java.util.logging.Logger;
 import server.UDPBroadcastService;
 import utils.LoggerConfig;
 
-/**
- * Listens for UDP broadcasts from the server to automatically discover the server's IP and Port.
- */
+// sniff out the server broadcasts on the network
 public class ServerDiscoveryService {
     private static final Logger logger = LoggerConfig.getLogger(ServerDiscoveryService.class);
 
-    /**
-     * Data object storing discovered server information.
-     */
+    // little container for server details
     public static class ServerInfo {
         public final String ipAddress;
         public final int tcpPort;
@@ -27,19 +23,14 @@ public class ServerDiscoveryService {
         }
     }
 
-    /**
-     * Listens on the predefined UDP port for the server broadcast.
-     * Blocks for a maximum of 10 seconds.
-     * 
-     * @return ServerInfo object containing details, or null if timeout/error.
-     */
+    // hang out and wait for a broadcast, bail if nothing happens after 10s
     public ServerInfo discoverServer() {
         logger.info("Listening for LAN File Server broadcasts on UDP port " + UDPBroadcastService.DISCOVERY_PORT + "...");
         
         try (DatagramSocket socket = new DatagramSocket(null)) {
             socket.setReuseAddress(true);
             socket.bind(new InetSocketAddress(UDPBroadcastService.DISCOVERY_PORT));
-            socket.setSoTimeout(10000); // 10 seconds timeout
+            socket.setSoTimeout(10000); // give it 10s then bail
             
             byte[] buffer = new byte[256];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
